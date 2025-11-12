@@ -40,18 +40,45 @@ function display_loaded_file(){
         end.innerText = elem.end
         let text = document.createElement('li')
         text.innerText = elem.text
-        card.appendChild(line)
-        card.appendChild(start)
-        card.appendChild(end)
-        card.appendChild(text)
+        let details = document.createElement('div')
+        details.className = "details"
+        let content = document.createElement('div')
+        content.className = "content"
+        let play = document.createElement('button')
+        play.innerText = "play"
+        play.addEventListener('click', play_sound)
+        let translate = document.createElement('button')
+        translate.innerText = "translate"
+        let control = document.createElement('div')
+        control.className = "control"
+        control.appendChild(play)
+        control.appendChild(translate)
+        details.appendChild(line)
+        details.appendChild(start)
+        details.appendChild(end)
+        content.appendChild(text)
+        content.appendChild(control)
+        card.appendChild(details)
+        card.appendChild(content)
+        card.className = "card"
         cards.appendChild(card)
     })
     loadedfile.innerHTML = ""
     loadedfile.appendChild(cards)
-    console.log(cards)
+}
+function play_sound(e){
+    let text = e.currentTarget.parentNode.previousElementSibling.innerText
+    //text = text.replace(/\(.*?\)/g, '')
+    let audio = new SpeechSynthesisUtterance(text)
+    audio.lang = 'ja-JP'
+    audio.pitch = 1
+    audio.rate = 1
+    console.log(audio)
+    speechSynthesis.speak(audio)
 }
 
 function loadfile(){
 
 }
+display_loaded_file()
 
