@@ -1,8 +1,11 @@
+
 let upload = document.getElementById("upload")
 let upload_btn = upload.getElementsByTagName("button")[0]
 let upload_file = upload.getElementsByTagName("input")[0]
+let loadedfile = document.getElementById("loadedfile")
 
 upload_file.addEventListener('change', load)
+
 function load(){
     let filename = upload_file.files[0]
     if (!filename) return
@@ -18,10 +21,34 @@ function load(){
             result.push(obj)
 
         });
-        console.log(result)
+        localStorage.setItem('load', JSON.stringify(result))
+        display_loaded_file()
     }
     reader.readAsText(filename)
-    console.log(filename)
+}
+function display_loaded_file(){
+    let file = JSON.parse(localStorage.getItem('load'))
+    let cards = document.createElement('div')
+    cards.className = 'cards'
+    file.forEach(elem=>{
+        let card = document.createElement('div')
+        let line = document.createElement('li')
+        line.innerText = elem.line
+        let start = document.createElement('li')
+        start.innerText = elem.start
+        let end = document.createElement('li')
+        end.innerText = elem.end
+        let text = document.createElement('li')
+        text.innerText = elem.text
+        card.appendChild(line)
+        card.appendChild(start)
+        card.appendChild(end)
+        card.appendChild(text)
+        cards.appendChild(card)
+    })
+    loadedfile.innerHTML = ""
+    loadedfile.appendChild(cards)
+    console.log(cards)
 }
 
 function loadfile(){
