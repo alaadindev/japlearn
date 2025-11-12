@@ -40,6 +40,12 @@ function display_loaded_file(){
         end.innerText = elem.end
         let text = document.createElement('li')
         text.innerText = elem.text
+        let translatetext
+        if (elem.translate){
+            console.log(elem.translate)
+            translatetext = document.createElement('li')
+            translatetext.innerText = elem.translate
+        }
         let details = document.createElement('div')
         details.className = "details"
         let content = document.createElement('div')
@@ -58,6 +64,9 @@ function display_loaded_file(){
         details.appendChild(start)
         details.appendChild(end)
         content.appendChild(text)
+        if (translatetext){
+            content.appendChild(translatetext)
+        }
         content.appendChild(control)
         card.appendChild(details)
         card.appendChild(content)
@@ -80,6 +89,8 @@ async function translate_text(e){
     try{
         let control = e.currentTarget.parentNode
         let content = control.parentNode
+        let card = content.parentNode
+        const line = content.parentNode.childNodes[0].childNodes[0].innerText
         let textelem = control.previousElementSibling
         let text = textelem.innerText
         if(content.childNodes.length > 2) return
@@ -87,6 +98,13 @@ async function translate_text(e){
         const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ja|en`)
         const data = await response.json();
         const translation = data.responseData.translatedText
+        let loadedfile = JSON.parse(localStorage.getItem('load'))
+        let obj = loadedfile[parseInt(line)-1]
+        if (obj){
+            Object.assign(obj, {'translate': translation})
+            loadedfile[parseInt(obj.line)-1] = obj
+        }
+        localStorage.setItem('load', JSON.stringify(loadedfile))
         let translated = document.createElement('li')
         translated.innerText = translation
         content.insertBefore(translated, control)
