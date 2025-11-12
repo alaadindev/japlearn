@@ -49,6 +49,7 @@ function display_loaded_file(){
         play.addEventListener('click', play_sound)
         let translate = document.createElement('button')
         translate.innerText = "translate"
+        translate.addEventListener('click', translate_text)
         let control = document.createElement('div')
         control.className = "control"
         control.appendChild(play)
@@ -73,8 +74,25 @@ function play_sound(e){
     audio.lang = 'ja-JP'
     audio.pitch = 1
     audio.rate = 1
-    console.log(audio)
     speechSynthesis.speak(audio)
+}
+async function translate_text(e){
+    try{
+        let control = e.currentTarget.parentNode
+        let content = control.parentNode
+        let textelem = control.previousElementSibling
+        let text = textelem.innerText
+        if(content.childNodes.length > 2) return
+
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ja|en`)
+        const data = await response.json();
+        const translation = data.responseData.translatedText
+        let translated = document.createElement('li')
+        translated.innerText = translation
+        content.insertBefore(translated, control)
+    }catch(err){
+        console.log(err)
+    }
 }
 
 function loadfile(){
