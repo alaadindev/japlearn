@@ -1,4 +1,4 @@
-
+import CardDom from './dom/card.js'
 let upload = document.getElementById("upload")
 let upload_btn = upload.getElementsByTagName("button")[0]
 let upload_file = upload.getElementsByTagName("input")[0]
@@ -31,53 +31,21 @@ function display_loaded_file(){
     let cards = document.createElement('div')
     cards.className = 'cards'
     file.forEach(elem=>{
-        let card = document.createElement('div')
-        let line = document.createElement('li')
-        line.innerText = elem.line
-        let start = document.createElement('li')
-        start.innerText = elem.start
-        let end = document.createElement('li')
-        end.innerText = elem.end
-        let text = document.createElement('li')
-        text.innerText = elem.text
-        let translatetext
-        if (elem.translate){
-            console.log(elem.translate)
-            translatetext = document.createElement('li')
-            translatetext.innerText = elem.translate
-        }
-        let details = document.createElement('div')
-        details.className = "details"
-        let content = document.createElement('div')
-        content.className = "content"
-        let play = document.createElement('button')
-        play.innerText = "play"
-        play.addEventListener('click', play_sound)
-        let translate = document.createElement('button')
-        translate.innerText = "translate"
-        translate.addEventListener('click', translate_text)
-        let control = document.createElement('div')
-        control.className = "control"
-        control.appendChild(play)
-        control.appendChild(translate)
-        details.appendChild(line)
-        details.appendChild(start)
-        details.appendChild(end)
-        content.appendChild(text)
-        if (translatetext){
-            content.appendChild(translatetext)
-        }
-        content.appendChild(control)
-        card.appendChild(details)
-        card.appendChild(content)
-        card.className = "card"
-        cards.appendChild(card)
+        let carddom = new CardDom(elem)
+        
+        carddom.playBtn.addEventListener('click', play_sound)
+        carddom.translateBtn.addEventListener('click', translate_text)
+        
+        cards.appendChild(carddom.card)
     })
     loadedfile.innerHTML = ""
     loadedfile.appendChild(cards)
+    console.log(file)
 }
 function play_sound(e){
-    let text = e.currentTarget.parentNode.previousElementSibling.innerText
+    let id = (e.currentTarget.id).split('-')[0]
+    let textelem = document.getElementById(`${id}-text`)
+    let text =textelem.innerText
     //text = text.replace(/\(.*?\)/g, '')
     let audio = new SpeechSynthesisUtterance(text)
     audio.lang = 'ja-JP'
@@ -87,27 +55,37 @@ function play_sound(e){
 }
 async function translate_text(e){
     try{
-        let control = e.currentTarget.parentNode
-        let content = control.parentNode
-        let card = content.parentNode
-        const line = content.parentNode.childNodes[0].childNodes[0].innerText
-        let textelem = control.previousElementSibling
+        let id = (e.currentTarget.id).split("-")[0]
+        console.log(id)
+        let card = document.getElementById(id)
+
+        let control = card.querySelector(`[id="${id}-control"]`)
+        let content = card.querySelector(`[id="${id}-content"]`) 
+        const line = card.querySelector(`[id="${id}-line"]`)
+
+        let textelem = card.querySelector(`[id="${id}-text"]`)
+        console.dir(card)
         let text = textelem.innerText
         if(content.childNodes.length > 2) return
 
+        //get translation from mymemory api
         const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ja|en`)
         const data = await response.json();
-        const translation = data.responseData.translatedText
+        const value = data.responseData.translatedText
+        
+        // save the new translation to loaded file 
         let loadedfile = JSON.parse(localStorage.getItem('load'))
-        let obj = loadedfile[parseInt(line)-1]
-        if (obj){
-            Object.assign(obj, {'translate': translation})
-            loadedfile[parseInt(obj.line)-1] = obj
-        }
+        let obj = loadedfile[id-1]
+        obj = {...obj, 'translate': value}
+        loadedfile[id-1] = obj
         localStorage.setItem('load', JSON.stringify(loadedfile))
-        let translated = document.createElement('li')
-        translated.innerText = translation
-        content.insertBefore(translated, control)
+
+        //add translation to content
+        let translationElem = document.createElement('li')
+        translationElem.id= `${id}-translation`
+        translationElem.innerText = value
+        content.insertBefore(translationElem, control)
+        console.log(value, translationElem)
     }catch(err){
         console.log(err)
     }
