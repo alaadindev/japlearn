@@ -10,9 +10,53 @@ html, body{
 header{
     background-color: aliceblue;
 }
+#showslist{
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+#showslist li{
+    list-style: none;
+    background-color: bisque;
+    font-size: 1.2em;
+    padding: 0.4em;
+    display: block;
+    cursor: pointer;
+    border-radius: 10px;
+}
 
 main{
     padding: 2em;
+}
+.hidden{
+    display: none !important;
+}
+#addshow{
+    display: flex;
+    flex-direction: column;
+}
+#showinfo{
+    display: flex;
+}
+#showinfo li{
+    list-style: none;
+    font-size: 1.2em;
+    background-color: antiquewhite;
+    display: block;
+    padding: 0.4em;
+    cursor: pointer;
+}
+#seasoninfo{
+    display: flex;
+    padding: 1em;
+}
+#seasoninfo li{
+    list-style: none;
+    font-size: 1.2em;
+    background-color: aquamarine;
+    display: block;
+    padding: 0.3em;
+    cursor: pointer;
 }
 .cards{
     display: flex;
