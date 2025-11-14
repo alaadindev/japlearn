@@ -23,6 +23,9 @@ main{
     flex-direction: column;
     margin-bottom: 10px;
 }
+.viewed{
+    background-color: lightgray;
+}
 .details {
     display: flex;
     gap: 1em;

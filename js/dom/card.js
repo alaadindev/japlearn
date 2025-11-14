@@ -58,5 +58,6 @@ export default class CardDom{
         this.content.appendChild(this.control)
         this.card.appendChild(this.details)
         this.card.appendChild(this.content)
+        if (elem.viewed) this.card.classList.add("viewed")
     }
 }

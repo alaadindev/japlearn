@@ -1,8 +1,11 @@
 import CardDom from './dom/card.js'
+import Store from './store/store.js'
 let upload = document.getElementById("upload")
 let upload_btn = upload.getElementsByTagName("button")[0]
 let upload_file = upload.getElementsByTagName("input")[0]
 let loadedfile = document.getElementById("loadedfile")
+
+const store = new Store()
 
 upload_file.addEventListener('change', load)
 
@@ -17,17 +20,17 @@ function load(){
         let result = []
         filecontent = filecontent.trimEnd().split(/\r?\n\r?\n/).forEach(element => {
             let token = element.split("\n")
-            let obj = {'line':token[0], 'start':token[1].split("-->")[0], 'end':token[1].split("-->")[1], 'text': token[2]}
+            let obj = {'line':token[0], 'start':token[1].split("-->")[0], 'end':token[1].split("-->")[1], 'text': token[2], 'viewed':false}
             result.push(obj)
 
         });
-        localStorage.setItem('load', JSON.stringify(result))
+        store.setCurrent(result)
         display_loaded_file()
     }
     reader.readAsText(filename)
 }
 function display_loaded_file(){
-    let file = JSON.parse(localStorage.getItem('load'))
+    let file = store.getCurrent()
     let cards = document.createElement('div')
     cards.className = 'cards'
     file.forEach(elem=>{
@@ -40,7 +43,6 @@ function display_loaded_file(){
     })
     loadedfile.innerHTML = ""
     loadedfile.appendChild(cards)
-    console.log(file)
 }
 function play_sound(e){
     let id = (e.currentTarget.id).split('-')[0]
@@ -74,17 +76,19 @@ async function translate_text(e){
         const value = data.responseData.translatedText
         
         // save the new translation to loaded file 
-        let loadedfile = JSON.parse(localStorage.getItem('load'))
+        let loadedfile = store.getCurrent()
         let obj = loadedfile[id-1]
         obj = {...obj, 'translate': value}
+        obj.viewed = true
         loadedfile[id-1] = obj
-        localStorage.setItem('load', JSON.stringify(loadedfile))
+        store.setCurrent(loadedfile)
 
         //add translation to content
         let translationElem = document.createElement('li')
         translationElem.id= `${id}-translation`
         translationElem.innerText = value
         content.insertBefore(translationElem, control)
+        card.classList.add("viewed")
         console.log(value, translationElem)
     }catch(err){
         console.log(err)
